@@ -3,16 +3,18 @@ chalk = require 'chalk'
 fs = require 'fs'
 cp = require 'safe-copy-paste'
 .silent()
-
-
+appDataDir = (process.env.APPDATA or (if process.platform == 'darwin' then process.env.HOME + 'Library/Preference' else '/var/local')) + '/mystuff'
+if !fs.existsSync(appDataDir)
+  fs.mkdirSync appDataDir
+  
 loadStuff = ->
   stuff = {}
-  if fs.existsSync '../stuff.json'
-    stuff = JSON.parse fs.readFileSync('../stuff.json')
+  if fs.existsSync appDataDir + '/stuff.json'
+    stuff = JSON.parse fs.readFileSync(appDataDir + '/stuff.json')
   stuff
 
 saveStuff = (stuff) ->
-  fs.writeFileSync '../stuff.json', JSON.stringify(stuff)
+  fs.writeFileSync appDataDir + '/stuff.json', JSON.stringify(stuff)
   return
   
 set = (argv) ->
@@ -20,10 +22,14 @@ set = (argv) ->
   if argv._.length is 3
     stuff[argv._[1]] = argv._[2]
   saveStuff stuff
+  
 get = (argv) ->
   stuff = loadStuff()
-  cp.copy stuff[argv._[1]]
-  console.log chalk.white.bold('copied to clipboard')
+  if stuff[argv._[1]]
+    cp.copy stuff[argv._[1]]
+    console.log chalk.white.bold('copied to clipboard')
+  else
+    console.log chalk.red.bold('doesn\'t exist')
   return
   
   
