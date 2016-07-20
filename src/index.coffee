@@ -21,7 +21,11 @@ set = (argv) ->
   stuff = loadStuff()
   if argv._.length is 3
     stuff[argv._[1]] = argv._[2]
-  saveStuff stuff
+    saveStuff stuff
+  if argv._.length is 2
+    cp.paste (err, data) ->
+      stuff[argv._[1]] = data
+      saveStuff stuff
   
 get = (argv) ->
   stuff = loadStuff()
